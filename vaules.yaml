@@ -1,0 +1,75 @@
+replicaCount: 1
+
+image:
+  repository: prom/cloudwatch-exporter
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9106  # This is the port on which the CloudWatch Exporter service will listen within the cluster.
+              # Prometheus will scrape metrics from this port.
+
+aws:
+  role: arn:aws:iam::833523737703:user/CloudWatchAgent-dev
+  stsRegional:
+    enabled: false
+  config:
+    region: us-east-1
+    period_seconds: 240
+    metrics:
+       - aws_namespace: AWS/ELB
+    aws_metric_name: HealthyHostCount
+    aws_dimensions: [AvailabilityZone, LoadBalancerName]
+    aws_statistics: [Average]
+
+  - aws_namespace: AWS/ELB
+    aws_metric_name: UnHealthyHostCount
+    aws_dimensions: [AvailabilityZone, LoadBalancerName]
+    aws_statistics: [Average]
+
+  - aws_namespace: AWS/ELB
+    aws_metric_name: RequestCount
+    aws_dimensions: [AvailabilityZone, LoadBalancerName]
+    aws_statistics: [Sum]
+
+  - aws_namespace: AWS/ELB
+    aws_metric_name: Latency
+    aws_dimensions: [AvailabilityZone, LoadBalancerName]
+    aws_statistics: [Average]
+
+  - aws_namespace: AWS/ELB
+    aws_metric_name: SurgeQueueLength
+    aws_dimensions: [AvailabilityZone, LoadBalancerName]
+    aws_statistics: [Maximum, Sum]
+
+
+livenessProbe:
+  path: /-/healthy
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  path: /-/ready
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+
+prometheusRule:
+   enabled: false
+
+resources:
+  requests:
+    cpu: 100m     
+    memory: 128Mi  
+  limits:
+    cpu: 500m     
+    memory: 512Mi
+
+
