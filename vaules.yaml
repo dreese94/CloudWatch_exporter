@@ -11,11 +11,11 @@ service:
               # Prometheus will scrape metrics from this port.
 
 aws:
-  role: arn:aws:iam::833523737703:user/CloudWatchAgent-dev
+  role: # Your ARN roleID
   stsRegional:
     enabled: false
   config:
-    region: us-east-1
+    region: # Your Region your ARN is own
     period_seconds: 240
     metrics:
        - aws_namespace: AWS/ELB
