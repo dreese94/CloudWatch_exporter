@@ -10,7 +10,7 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   config.yml: |
-    region: us-east-1
+    region: # "what ever your ARN role is in"
     period_seconds: 240
     metrics:
       - aws_namespace: AWS/ELB
